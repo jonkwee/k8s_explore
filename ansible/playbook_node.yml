@@ -1,0 +1,10 @@
+---
+  - hosts: k8s_nodes
+    gather_facts: yes
+    become: yes
+    tasks:
+      - name: Download latest kubectl binary using curl and move it into PATH
+        get_url:
+          url: https://storage.googleapis.com/kubernetes-release/release/v1.20.0/bin/linux/amd64/kubectl
+          dest: /usr/local/bin/kubectl
+          mode: '+x'
