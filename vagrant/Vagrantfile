@@ -1,0 +1,74 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrant file to spin up 3 VMs for exploring k8s
+Vagrant.configure("2") do |config|
+
+  config.vm.define "k8s_master" do |k8s_master|
+    # using ubuntu 20.04 server box
+    k8s_master.vm.box = "generic/ubuntu2004"
+    # set private network static ip address
+    k8s_master.vm.network "private_network", ip: "192.168.10.10"
+    # configure vm memory to use 2G with 2 cores
+    k8s_master.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = 2048
+      vb.cpus = 2
+    end
+    # provision through Ansible playbook
+    k8s_master.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbook_master.yml"
+      ansible.become = true
+      ansible.limit = "all"
+      ansible.compatibility_mode = "2.0"
+      ansible.groups = {
+        "k8s_master" => ["k8s_master"]
+      }
+    end
+  end
+
+  config.vm.define "k8s_node1" do |k8s_node1|
+    # using ubuntu 20.04 server box
+    k8s_node1.vm.box = "generic/ubuntu2004"
+    # set private network static ip address
+    k8s_node1.vm.network "private_network", ip: "192.168.10.11"
+    # configure vm memory to use 2G 
+    k8s_node1.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = 2048
+    end
+    # provision through Ansible playbook
+    k8s_node1.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbook_node.yml"
+      ansible.become = true
+      ansible.limit = "all"
+      ansible.compatibility_mode = "2.0"
+      ansible.groups = {
+        "k8s_nodes" => ["k8s_node1, k8s_node2"]
+      }
+    end
+  end
+
+  config.vm.define "k8s_node2" do |k8s_node2|
+    # using ubuntu 20.04 server box
+    k8s_node2.vm.box = "generic/ubuntu2004"
+    # set private network static ip address
+    k8s_node2.vm.network "private_network", ip: "192.168.10.12"
+    # configure vm memory to use 2G 
+    k8s_node2.vm.provider "virtualbox" do |vb|
+      vb.gui = false
+      vb.memory = 2048
+    end
+    # provision through Ansible playbook
+    k8s_node2.vm.provision "ansible" do |ansible|
+      ansible.playbook = "../ansible/playbook_node.yml"
+      ansible.become = true
+      ansible.limit = "all"
+      ansible.compatibility_mode = "2.0"
+      ansible.groups = {
+        "k8s_nodes" => ["k8s_node1, k8s_node2"]
+      }
+    end
+  end
+
+end
