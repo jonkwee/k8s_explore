@@ -4,6 +4,8 @@
 # Vagrant file to spin up 3 VMs for exploring k8s
 Vagrant.configure("2") do |config|
 
+  config.ssh.insert_key = false
+
   config.vm.define "k8s_master" do |k8s_master|
     # using ubuntu 20.04 server box
     k8s_master.vm.box = "generic/ubuntu2004"
@@ -18,11 +20,13 @@ Vagrant.configure("2") do |config|
     # provision through Ansible playbook
     k8s_master.vm.provision "ansible" do |ansible|
       ansible.playbook = "../ansible/playbook_master.yml"
-      ansible.become = true
       ansible.limit = "all"
       ansible.compatibility_mode = "2.0"
       ansible.groups = {
         "k8s_master" => ["k8s_master"]
+      }
+      ansible.extra_vars = {
+        node_ip: "192.168.10.10",
       }
     end
   end
@@ -40,11 +44,13 @@ Vagrant.configure("2") do |config|
     # provision through Ansible playbook
     k8s_node1.vm.provision "ansible" do |ansible|
       ansible.playbook = "../ansible/playbook_node.yml"
-      ansible.become = true
       ansible.limit = "all"
       ansible.compatibility_mode = "2.0"
       ansible.groups = {
         "k8s_nodes" => ["k8s_node1, k8s_node2"]
+      }
+      ansible.extra_vars = {
+        node_ip: "192.168.10.11",
       }
     end
   end
@@ -62,11 +68,13 @@ Vagrant.configure("2") do |config|
     # provision through Ansible playbook
     k8s_node2.vm.provision "ansible" do |ansible|
       ansible.playbook = "../ansible/playbook_node.yml"
-      ansible.become = true
       ansible.limit = "all"
       ansible.compatibility_mode = "2.0"
       ansible.groups = {
         "k8s_nodes" => ["k8s_node1, k8s_node2"]
+      }
+      ansible.extra_vars = {
+        node_ip: "192.168.10.12",
       }
     end
   end
